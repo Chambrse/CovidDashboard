@@ -8,6 +8,8 @@ class Navbar extends React.Component {
 
     render() {
         return (
+            <div className="container-fluid overflow-hidden">
+                <div className="row vh-100 overflow-auto">
                     <div className="col-12 col-sm-3 col-xl-2 px-sm-2 px-0 bg-dark d-flex sticky-top">
                         <div className="d-flex flex-sm-column flex-row flex-grow-1 align-items-center align-items-sm-start px-3 pt-2 text-white">
                             <a href="/" className="d-flex align-items-center pb-sm-3 mb-md-0 me-md-auto text-white text-decoration-none">
@@ -28,7 +30,7 @@ class Navbar extends React.Component {
                                         <i className="fs-5 bi-table"></i><span className="ms-1 d-none d-sm-inline">Orders</span></a>
                                 </li>
                                 <li className="dropdown">
-                                    <a href="#" className="nav-link dropdown-toggle px-sm-0 px-1" id="dropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <a href="#" className="nav-link dropdown-toggle px-sm-0 px-2" id="dropdown" data-bs-toggle="dropdown" aria-expanded="false">
                                         <i className="fs-5 bi-bootstrap"></i><span className="ms-1 d-none d-sm-inline">Bootstrap</span>
                                     </a>
                                     <ul className="dropdown-menu dropdown-menu-dark text-small shadow" aria-labelledby="dropdown">
@@ -36,7 +38,7 @@ class Navbar extends React.Component {
                                         <li><a className="dropdown-item" href="#">Settings</a></li>
                                         <li><a className="dropdown-item" href="#">Profile</a></li>
                                         <li>
-                                            <hr className="dropdown-divider"></hr>
+                                            <hr className="dropdown-divider" />
                                         </li>
                                         <li><a className="dropdown-item" href="#">Sign out</a></li>
                                     </ul>
@@ -52,21 +54,30 @@ class Navbar extends React.Component {
                             </ul>
                             <div className="dropdown py-sm-4 mt-sm-auto ms-auto ms-sm-0 flex-shrink-1">
                                 <a href="#" className="d-flex align-items-center text-white text-decoration-none dropdown-toggle" id="dropdownUser1" data-bs-toggle="dropdown" aria-expanded="false">
-                                    <img src="https://github.com/mdo.png" alt="hugenerd" width="28" height="28" className="rounded-circle"></img>
-                                    <span className ="d-none d-sm-inline mx-1">Joe</span>
+                                    <img src="https://github.com/mdo.png" alt="hugenerd" width="28" height="28" className="rounded-circle" />
+                                    <span className="d-none d-sm-inline mx-1">Joe</span>
                                 </a>
                                 <ul className="dropdown-menu dropdown-menu-dark text-small shadow" aria-labelledby="dropdownUser1">
                                     <li><a className="dropdown-item" href="#">New project...</a></li>
                                     <li><a className="dropdown-item" href="#">Settings</a></li>
                                     <li><a className="dropdown-item" href="#">Profile</a></li>
                                     <li>
-                                        <hr className="dropdown-divider"></hr>
+                                        <hr className="dropdown-divider" />
                                     </li>
                                     <li><a className="dropdown-item" href="#">Sign out</a></li>
                                 </ul>
                             </div>
                         </div>
                     </div>
+                    <div className="col-12 col-sm-9 col-xl-10 d-flex flex-column h-100">
+                        <main className="row h-100 overflow-auto">
+                            <div className="col pt-4">
+                                {this.props.children}
+                            </div>
+                        </main>
+                    </div>
+                </div>
+            </div>
         );
     }
 }
