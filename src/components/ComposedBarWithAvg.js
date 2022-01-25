@@ -70,7 +70,7 @@ class ComposedBarWithAvg extends React.Component {
                     <Tooltip labelFormatter={(date) => moment.unix(date).format('MM/DD/YY')} />
                     <Legend verticalAlign="top" />
                     <Bar legendType='none' dataKey={y1} />
-                    <Line strokeWidth={3} name='7 Day Avg' type="monotone" dot={false} dataKey={y2} stroke="#ff7300" />
+                    <Line strokeWidth={3} name='7 Day Avg' type="monotone" dot={false} dataKey={y2} stroke="#524de8" />
                 </ComposedChart>
             </ResponsiveContainer>
         );
