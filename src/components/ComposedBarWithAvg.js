@@ -13,6 +13,7 @@ import {
     Legend
   } from "recharts";
   import moment from 'moment';
+import nFormatter from '../helpers/nFormatter';
 
 class CustomizedAxisTick extends React.Component {
     render() {
@@ -28,22 +29,7 @@ class CustomizedAxisTick extends React.Component {
     }
 }
 
-function nFormatter(num, digits) {
-    const lookup = [
-      { value: 1, symbol: "" },
-      { value: 1e3, symbol: "k" },
-      { value: 1e6, symbol: "M" },
-      { value: 1e9, symbol: "G" },
-      { value: 1e12, symbol: "T" },
-      { value: 1e15, symbol: "P" },
-      { value: 1e18, symbol: "E" }
-    ];
-    const rx = /\.0+$|(\.[0-9]*[1-9])0+$/;
-    var item = lookup.slice().reverse().find(function (item) {
-      return num >= item.value;
-    });
-    return item ? (num / item.value).toFixed(digits).replace(rx, "$1") + item.symbol : "0";
-  }
+
   
 
 class ComposedBarWithAvg extends React.Component {
@@ -66,11 +52,11 @@ class ComposedBarWithAvg extends React.Component {
                 >
                     <CartesianGrid />
                     <XAxis dataKey={x} scale="time" type="number" domain={['auto', 'auto']} tick={<CustomizedAxisTick />} />
-                    <YAxis label={{ value: label, angle: -90, position: 'insideLeft' }} domain={['auto', 'auto']} tickFormatter={nFormatter} />
+                    <YAxis label={{ value: label, angle: -90, position: 'insideLeft' }}  domain={['auto', 'auto']} tickFormatter={nFormatter} />
                     <Tooltip labelFormatter={(date) => moment.unix(date).format('MM/DD/YY')} />
                     <Legend verticalAlign="top" />
                     <Bar legendType='none' dataKey={y1} />
-                    <Line strokeWidth={3} name='7 Day Avg' type="monotone" dot={false} dataKey={y2} stroke="#524de8" />
+                    <Line strokeWidth={3} name='7 Day Avg' type="monotone" dot={false} dataKey={y2} stroke="#524de8" />x    
                 </ComposedChart>
             </ResponsiveContainer>
         );

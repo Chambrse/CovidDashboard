@@ -4,9 +4,36 @@ import { Link } from 'react-router-dom'
 class Navbar extends React.Component {
     constructor(props) {
         super(props);
+
+        this.onInput = this.onInput.bind(this);
     }
 
+    onInput(e) {
+        let { countryList, rootStateHandler } = this.props;
+        let goodArray = countryList.map((countryObj) => countryObj.location);
+
+        console.log(goodArray);
+        if (goodArray.includes(e.target.value )) {
+            console.log('match found')
+            rootStateHandler(e.target.value);
+        }
+
+    }
+
+
     render() {
+
+        let { location, countryList } = this.props;
+        let label;
+
+        switch (location) {
+            case '/':
+                label = 'Overview'
+                break;
+
+            default:
+                break;
+        }
         return (
             <div className="container-fluid overflow-hidden">
                 <div className="row vh-100 overflow-hidden">
@@ -17,7 +44,7 @@ class Navbar extends React.Component {
                             </a>
                             <ul className="nav nav-pills flex-sm-column flex-row flex-nowrap flex-shrink-1 flex-sm-grow-0 flex-grow-1 mb-sm-auto mb-0 justify-content-center align-items-center align-items-sm-start" id="menu">
                                 <li className="nav-item">
-                                    <Link to='geo'>
+                                    <Link to='/'>
                                         <div className="nav-link px-sm-0 px-2">
                                             <i className="fs-5 bi-house"></i><span className="ms-1 d-none d-sm-inline">Overview</span>
                                         </div>
@@ -73,7 +100,21 @@ class Navbar extends React.Component {
                     </div>
                     <div className="col-12 col-sm-9 col-xl-10 d-flex flex-column h-100">
                         <main className="row h-100 overflow-auto">
-                            <div className="col pt-4">
+                            <div className="col">
+                                <div className='row mb-3 sticky-top align-items-center' style={{ color: '#0d6efd', height: '10vh', backgroundColor: '#212529' }}>
+                                    <div className='col-6 col-sm-3'>
+                                        {label}
+                                    </div>
+                                    <div className='col-6 col-sm-3'>
+                                        {/* <label for="exampleDataList" class="form-label">Datalist example</label> */}
+                                        <input className="form-control" onInput={this.onInput} list="datalistOptions" id="countrySelect" placeholder="Select Country" />
+                                        <datalist id="datalistOptions">
+                                            {countryList.map((country) =>
+                                                <option key={country.location} value={country.location} />
+                                            )}
+                                        </datalist>
+                                    </div>
+                                </div>
                                 {this.props.children}
                             </div>
                         </main>

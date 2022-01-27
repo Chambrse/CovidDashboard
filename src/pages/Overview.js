@@ -3,7 +3,7 @@ import axios from 'axios';
 import Card from '../components/Card';
 import ComposedBarWithAvg from '../components/ComposedBarWithAvg';
 import { PieChart, Pie, Legend, Tooltip, ResponsiveContainer } from 'recharts';
-
+import nFormatter from '../helpers/nFormatter';
 const RADIAN = Math.PI / 180;
 
 
@@ -14,9 +14,17 @@ class Overview extends React.Component {
             data: [],
             isLoaded: false
         };
+        this.getData = this.getData.bind(this);
     }
+
     componentDidMount() {
-        this.getData();
+        this.getData('World');
+    }
+
+    componentDidUpdate(prevProps) {
+        if (prevProps.country != this.props.country) {
+            this.getData();
+        }
     }
 
     renderCustomizedLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent, index }) => {
@@ -28,50 +36,48 @@ class Overview extends React.Component {
 
         switch (index) {
             case 0:
-              label = 'One Shot'
-              break;
+                label = 'One Shot'
+                break;
             case 1:
-                label = 'Fully vaccinated'
-            break;
+                label = 'Two Shots'
+                break;
             case 2:
+                label = 'Boosted'
+                break;
+            case 3:
                 label = 'Unvaccinated'
-              break;
-          }
-      
+                break;
+        }
+
         return (
-          <text x={x} y={y} fill="black" textAnchor={x > cx ? 'start' : 'end'} dominantBaseline="central">
-            {`${label}`}
-          </text>
+            <text x={x} y={y} fill="black" textAnchor={x > cx ? 'start' : 'end'} dominantBaseline="central">
+                {`${label}`}
+            </text>
         );
-      };
+    };
 
     getData() {
-        axios.get("/bq/newCasesPerDay")
+        axios.get("/data/owid/country/" + this.props.country)
             .then(res => {
 
-                const cumulative = {};
-                cumulative.cases = res.data.reduce((previousValue, currentValue) => previousValue + currentValue.New_cases, 0);
-                cumulative.deceased = res.data.reduce((previousValue, currentValue) => previousValue + currentValue.new_deceased, 0);
-                cumulative.twoShots = res.data.reduce((previousValue, currentValue) => previousValue + currentValue.new_fully_vaccinated, 0);
-                cumulative.oneShot = res.data.reduce((previousValue, currentValue) => previousValue + currentValue.new_vaccinated, 0) - cumulative.twoShots;
-                cumulative.fatalityRate = ((cumulative.deceased / cumulative.cases) * 100).toFixed(2);
+                let yesterday = res.data[res.data.length - 1];
+                let DBFY = res.data[res.data.length - 2];
 
-                const yesterday = res.data[res.data.length - 1];
-
-                yesterday.percentage_change_cases = (((yesterday.New_cases - yesterday.cases_yesterday) / yesterday.cases_yesterday) * 100).toFixed(2);
-                yesterday.percentage_change_deceased = (((yesterday.new_deceased - yesterday.deceased_yesterday) / yesterday.deceased_yesterday) * 100).toFixed(2);
+                yesterday.percentage_change_cases = (((yesterday.New_cases - DBFY.New_cases) / DBFY.New_cases) * 100).toFixed(2);
+                yesterday.percentage_change_deceased = (((yesterday.new_deceased - DBFY.new_deceased) / DBFY.new_deceased) * 100).toFixed(2);
+                yesterday.fatalityRate = ((yesterday.total_deaths / yesterday.total_cases) * 100).toFixed(2);
 
                 let data01 = [
-                    { name: '1 Shot', value: cumulative.oneShot, fill: 'black' },
-                    { name: '2 Shots', value: cumulative.twoShots, fill: 'brown' },
-                    { name: 'Unvaccinated', value: 7900000000 - (cumulative.oneShot + cumulative.twoShots), fill: 'blue' }
+                    { name: '1 Shot', value: yesterday.people_vaccinated, fill: '#363380' },
+                    { name: '2 Shots', value: yesterday.people_fully_vaccinated, fill: '#292680' },
+                    { name: '3 Shots', value: yesterday.total_boosters, fill: '#434080' },
+                    { name: 'Unvaccinated', value: 7900000000 - (yesterday.people_vaccinated), fill: '#5b5980' }
                 ];
 
                 this.setState({
                     data: res.data,
                     isLoaded: true,
                     yesterday: yesterday,
-                    cumulative: cumulative,
                     vaccinePieData: data01
                 });
 
@@ -90,13 +96,13 @@ class Overview extends React.Component {
                                 <div className='row mb-3'>
                                     <div className='col-6 '>
                                         <Card title='Cases Yesterday'>
-                                            <h3 className='float-start'>{this.state.yesterday.New_cases}</h3>
+                                            <h3 className='float-start'>{nFormatter(this.state.yesterday.New_cases)}</h3>
                                             <div className='float-end d-inline-block align-middle ' style={{ paddingLeft: '.5em', paddingRight: '.5em', borderRadius: '3px', backgroundColor: this.state.yesterday.percentage_change_cases > 0 ? 'red' : 'green' }}>{this.state.yesterday.percentage_change_cases}%</div>
                                         </Card>
                                     </div>
                                     <div className='col-6 '>
                                         <Card title='Total Cases'>
-                                            <h3 className='float-start'>{this.state.cumulative.cases}</h3>
+                                            <h3 className='float-start'>{nFormatter(this.state.yesterday.total_cases)}</h3>
                                             <div className='float-end d-inline-block align-middle ' style={{ paddingLeft: '.5em', paddingRight: '.5em', borderRadius: '3px', backgroundColor: "red" }}>+{this.state.yesterday.New_cases}</div>
                                         </Card>
                                     </div>
@@ -113,13 +119,13 @@ class Overview extends React.Component {
                                 <div className='row mb-3'>
                                     <div className='col-6 '>
                                         <Card title='Deceased Yesterday'>
-                                            <h3 className='float-start'>{this.state.yesterday.new_deceased}</h3>
+                                            <h3 className='float-start'>{nFormatter(this.state.yesterday.new_deceased)}</h3>
                                             <div className='float-end d-inline-block align-middle ' style={{ paddingLeft: '.5em', paddingRight: '.5em', borderRadius: '3px', backgroundColor: this.state.yesterday.percentage_change_deceased > 0 ? 'red' : 'green' }}>{this.state.yesterday.percentage_change_deceased}%</div>
                                         </Card>
                                     </div>
                                     <div className='col-6 '>
                                         <Card title='Total Deaths'>
-                                            <h3 className='float-start'>{this.state.cumulative.deceased}</h3>
+                                            <h3 className='float-start'>{nFormatter(this.state.yesterday.total_deaths)}</h3>
                                             <div className='float-end d-inline-block align-middle ' style={{ paddingLeft: '.5em', paddingRight: '.5em', borderRadius: '3px', backgroundColor: "red" }}>+{this.state.yesterday.new_deceased}</div>
                                         </Card>
                                     </div>
@@ -149,7 +155,6 @@ class Overview extends React.Component {
                                                         fill="#8884d8"
                                                         label={this.renderCustomizedLabel}
                                                     />
-                                                    {/* <Pie dataKey="value" data={data02} cx={500} cy={200} innerRadius={40} outerRadius={80} fill="#82ca9d" /> */}
                                                     <Tooltip />
                                                 </PieChart>
                                             </ResponsiveContainer>
@@ -161,7 +166,7 @@ class Overview extends React.Component {
                                 <div className='row mb-3'>
                                     <div className='col-6' style={{ height: '25vh' }}>
                                         <Card title='Fatality Rate'>
-                                            <h3 className=' align-middle text-center'>{this.state.cumulative.fatalityRate}%</h3>
+                                            <h3 className=' align-middle text-center'>{this.state.yesterday.fatalityRate}%</h3>
                                         </Card>
                                     </div>
                                 </div>
